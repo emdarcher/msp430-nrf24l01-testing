@@ -13,7 +13,7 @@ int main()
 	WDTCTL = WDTHOLD | WDTPW;
 	DCOCTL = CALDCO_16MHZ;
 	BCSCTL1 = CALBC1_16MHZ;
-	BCSCTL2 = DIVS_1;  // SMCLK = DCOCLK/4
+	BCSCTL2 = DIVS_2;  // SMCLK = DCOCLK/4
 	// SPI (USCI) uses SMCLK, prefer SMCLK < 10MHz (SPI speed limit for nRF24 = 10MHz)
 	user = 0xFE;
 
