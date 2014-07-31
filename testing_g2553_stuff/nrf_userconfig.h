@@ -30,15 +30,15 @@
  */
 
 /* Settings for 8MHz MCLK.*/
-#define DELAY_CYCLES_5MS       40000
-#define DELAY_CYCLES_130US     1040
-#define DELAY_CYCLES_15US      120
+//#define DELAY_CYCLES_5MS       40000
+//#define DELAY_CYCLES_130US     1040
+//#define DELAY_CYCLES_15US      120
 
 
 /* Settings for 16MHz MCLK */
-//#define DELAY_CYCLES_5MS       80000
-//#define DELAY_CYCLES_130US     2080
-//#define DELAY_CYCLES_15US      240
+#define DELAY_CYCLES_5MS       80000
+#define DELAY_CYCLES_130US     2080
+#define DELAY_CYCLES_15US      240
 
 /* Settings for 24MHz MCLK.
 #define DELAY_CYCLES_5MS       120000

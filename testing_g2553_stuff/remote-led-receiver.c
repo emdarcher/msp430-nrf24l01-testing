@@ -31,7 +31,7 @@ int main()
 	msprf24_open_pipe(0, 1);  // Open pipe#0 with Enhanced ShockBurst
 
 	// Set our RX address
-	memcpy(addr, "\xDE\xAD\xBE\xEF\x01", 5);
+	memcpy(addr, "\xDE\xAD\xBE\xEF\x00", 5);
 	w_rx_addr(0, addr);
 
 	// Receive mode

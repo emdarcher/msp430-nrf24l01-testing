@@ -52,9 +52,10 @@ int main()
 	user = 0xFE;
 
 	/* Initial values for nRF24L01+ library config variables */
-	rf_crc = RF24_EN_CRC; // CRC enabled, 8-bit
+	rf_crc = RF24_EN_CRC//; // CRC enabled, 8-bit
+    | RF24_CRCO;
 	rf_addr_width      = 5;
-	rf_speed_power     = RF24_SPEED_MIN | RF24_POWER_MAX;
+	rf_speed_power     = RF24_SPEED_1MBPS | RF24_POWER_MAX;
 	rf_channel         = 120;
 	msprf24_init();  // All RX pipes closed by default
 	msprf24_set_pipe_packetsize(0, 0);
@@ -65,8 +66,8 @@ int main()
 	// Transmit to 0xDEADBEEF01
 	msprf24_standby();
 	user = msprf24_current_state();
-	addr[0] = 'r'; addr[1] = 'a'; addr[2] = 'd'; addr[3] = '0'; addr[4] = '1';
-	memcpy(addr, "\xDE\xAD\xBE\xEF\x01", 5);
+	//addr[0] = 'r'; addr[1] = 'a'; addr[2] = 'd'; addr[3] = '0'; addr[4] = '1';
+	memcpy(addr, "\xDE\xAD\xBE\xEF\x00", 5);
 	w_tx_addr(addr);
 	w_rx_addr(0, addr);  // Pipe 0 receives auto-ack's, autoacks are sent back to the TX addr so the PTX node
 			     // needs to listen to the TX addr on pipe#0 to receive them.
@@ -82,7 +83,7 @@ int main()
 				buf[0] = '0';
 			else
 				buf[0] = '1';
-			w_tx_payload(2, buf);
+			w_tx_payload(32, buf);
 			msprf24_activate_tx();
 		}
         __delay_cycles(0xffff);

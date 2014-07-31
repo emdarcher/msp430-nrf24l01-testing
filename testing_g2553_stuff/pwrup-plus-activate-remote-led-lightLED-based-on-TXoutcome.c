@@ -1,6 +1,7 @@
 #include <msp430.h>
 #include "msprf24.h"
 #include "nrf_userconfig.h"
+#include <string.h>
 
 volatile unsigned int user;
 
@@ -35,7 +36,8 @@ int main()
 	// Transmit to 'rad01' (0x72 0x61 0x64 0x30 0x31)
 	msprf24_standby();
 	user = msprf24_current_state();
-	addr[0] = 'r'; addr[1] = 'a'; addr[2] = 'd'; addr[3] = '0'; addr[4] = '1';
+	//addr[0] = 'r'; addr[1] = 'a'; addr[2] = 'd'; addr[3] = '0'; addr[4] = '1';
+    memcpy(addr, "\xDE\xAD\xBE\xEF\x01", 5);
 	w_tx_addr(addr);
 	w_rx_addr(0, addr);  // Pipe 0 receives auto-ack's, autoacks are sent back to the TX addr so the PTX node
 			     // needs to listen to the TX addr on pipe#0 to receive them.
