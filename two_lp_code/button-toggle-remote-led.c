@@ -11,11 +11,11 @@ void setup_button(void);
 
 volatile int wdtsleep;
 
-/* Sleep for <cycles> * 47ms */
+/* Sleep for <cycles> */
 void wdt_sleep(unsigned int cycles)
 {
         wdtsleep = cycles;
-        WDTCTL = WDTPW | WDTTMSEL | WDTCNTCL | WDTSSEL | WDTIS1;  // WDT interval = 512 VLOCLK cycles, about 47ms
+        WDTCTL = WDTPW | WDTTMSEL | WDTCNTCL | WDTSSEL | WDTIS1;  // WDT interval = 64 vlo clk cycles
         IFG1 &= ~WDTIFG;
         IE1 |= WDTIE;
         LPM3;
@@ -108,7 +108,7 @@ int main()
 			msprf24_activate_tx();
 		}
 
-		wdt_sleep(1);  // ~500ms LPM3 sleep
+		wdt_sleep(1);  //sleep a bit
 	}
     
 /*
