@@ -52,10 +52,11 @@ int main()
 	user = 0xFE;
 
 	/* Initial values for nRF24L01+ library config variables */
-	rf_crc = RF24_EN_CRC//; // CRC enabled, 8-bit
-    | RF24_CRCO;
+	rf_crc = RF24_EN_CRC; // CRC enabled, 8-bit
+    //| RF24_CRCO;
 	rf_addr_width      = 5;
-	rf_speed_power     = RF24_SPEED_1MBPS | RF24_POWER_MAX;
+	//rf_speed_power     = RF24_SPEED_1MBPS | RF24_POWER_MAX;
+    rf_speed_power      = RF24_SPEED_MIN | RF24_POWER_MAX;
 	rf_channel         = 120;
 	msprf24_init();  // All RX pipes closed by default
 	msprf24_set_pipe_packetsize(0, 0);
@@ -86,8 +87,8 @@ int main()
 			w_tx_payload(32, buf);
 			msprf24_activate_tx();
 		}
-        __delay_cycles(0xffff);
-		//wdt_sleep(10);  // ~500ms LPM3 sleep
+       // __delay_cycles(0xffff);
+		wdt_sleep(10);  // ~500ms LPM3 sleep
 	}
 	return 0;
 }
