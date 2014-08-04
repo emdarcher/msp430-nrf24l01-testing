@@ -12,6 +12,7 @@ volatile int wdtsleep;
 uint16_t ADC_read(void);
 void ADC_init(void);
 
+volatile uint16_t adc_val;
 #define A4 BIT4
 
 /* Sleep for <cycles> * 47ms */
@@ -82,7 +83,8 @@ int main()
     w_rx_addr(0, addr);  // Pipe 0 receives auto-ack's, autoacks are sent back to the TX addr so the PTX node
     // needs to listen to the TX addr on pipe#0 to receive them.
     buf[0] = '0';
-    buf[1] = '\0';
+    buf[1]='\0';
+    //buf[2] = '\0';
     while(1) {
         if (rf_irq & RF24_IRQ_FLAGGED) {  // Just acknowledging previous packet here
             msprf24_get_irq_reason();
@@ -94,7 +96,13 @@ int main()
             //else
             //	buf[0] = '1';
 
-            buf[] = snprintf(buf,32,"%d",ADC_read());
+            //buf[] = snprintf(buf,32,"%d",ADC_read());
+            adc_val = ADC_read();
+            
+            //buf[0] = (uint8_t)(adc_val>>8);//get high byte
+            //buf[1] = (uint8_t)(adc_val);//low byte
+            buf[0]=(uint8_t)(adc_val>>2);//8 bits?
+            
             w_tx_payload(32, buf);
             msprf24_activate_tx();
         }
@@ -108,7 +116,7 @@ void ADC_init(void) {
             // Use Vcc/Vss for Up/Low Refs, 16 x ADC10CLKs, turn on ADC
     ADC10CTL0 = SREF_0 + ADC10SHT_2 + ADC10ON;
             // A4 input, use ADC10CLK div 1, single channel mode  
-    ADC10CTL1 =  INCH_2 + SHS_0 + ADC10SSEL_0 + ADC10DIV_0 + CONSEQ_0;
+    ADC10CTL1 =  INCH_4 + SHS_0 + ADC10SSEL_0 + ADC10DIV_0 + CONSEQ_0;
     ADC10AE0 = A4;      // Enable ADC input on P1.1
 }
 
