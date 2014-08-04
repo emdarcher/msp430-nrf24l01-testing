@@ -83,8 +83,8 @@ int main()
     w_rx_addr(0, addr);  // Pipe 0 receives auto-ack's, autoacks are sent back to the TX addr so the PTX node
     // needs to listen to the TX addr on pipe#0 to receive them.
     buf[0] = '0';
-    buf[1]='\0';
-    //buf[2] = '\0';
+    //buf[1]='\0';
+    buf[2] = '\0';
     while(1) {
         if (rf_irq & RF24_IRQ_FLAGGED) {  // Just acknowledging previous packet here
             msprf24_get_irq_reason();
@@ -99,9 +99,10 @@ int main()
             //buf[] = snprintf(buf,32,"%d",ADC_read());
             adc_val = ADC_read();
             
-            //buf[0] = (uint8_t)(adc_val>>8);//get high byte
-            //buf[1] = (uint8_t)(adc_val);//low byte
-            buf[0]=(uint8_t)(adc_val>>2);//8 bits?
+            //adc_val = 1023;
+            buf[0] = (uint8_t)(adc_val>>8);//get high byte
+            buf[1] = (uint8_t)(adc_val);//low byte
+            //buf[0]=(uint8_t)(adc_val>>2);//8 bits?
             
             w_tx_payload(32, buf);
             msprf24_activate_tx();
