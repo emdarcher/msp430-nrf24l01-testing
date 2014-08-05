@@ -11,6 +11,8 @@ volatile int wdtsleep;
 
 uint16_t ADC_read(void);
 void ADC_init(void);
+void Temp_ADC_init(void);
+
 
 volatile uint16_t adc_val;
 #define A4 BIT4
@@ -54,7 +56,8 @@ int main()
 
 
     //init the ADC
-    ADC_init();
+    //ADC_init();
+    Temp_ADC_init();
 
     wdtsleep = 0;
 
@@ -100,9 +103,14 @@ int main()
             adc_val = ADC_read();
             
             //adc_val = 1023;
-            buf[0] = (uint8_t)(adc_val>>8);//get high byte
-            buf[1] = (uint8_t)(adc_val);//low byte
+            //buf[0] = (uint8_t)(adc_val>>8);//get high byte
+            //buf[1] = (uint8_t)(adc_val);//low byte
             //buf[0]=(uint8_t)(adc_val>>2);//8 bits?
+            
+            buf[1]= ((48724L * adc_val) -  30634388L) >> 16;
+            
+            //celsius
+            //buf[1]=((27069L * adc_val) -  18169625L) >> 16; 
             
             w_tx_payload(32, buf);
             msprf24_activate_tx();
@@ -121,13 +129,38 @@ void ADC_init(void) {
     ADC10AE0 = A4;      // Enable ADC input on P1.1
 }
 
+void Temp_ADC_init(void){
+    
+    ADC10CTL0 = 0;                                      // Configure ADC
+    ADC10CTL1 = INCH_10 | ADC10DIV_3;                   //
+    ADC10CTL0 = SREF_1 | ADC10SHT_3 | REFON | ADC10ON | ADC10IE;
+    
+    ADC10CTL0 |= ADC10IE;                               // Enable ADC conversion complete interrupt
+}
+
+
+
 uint16_t ADC_read(void){
 	uint16_t val=0;
     ADC10CTL0 |= ENC+ ADC10SC;     // Enable conversions.
-	while ((ADC10CTL1 & ADC10BUSY) == 0x01){
-	}   // wait for conversion to end
+	//while ((ADC10CTL1 & ADC10BUSY) == 0x01){
+	//}   // wait for conversion to end
+    
+    //LPM0; //will exit when ADC done
+    __bis_SR_register(LPM0_bits + GIE);             // Sleep until conversion complete
+    
 	//a1_val=ADC10MEM;
     val=ADC10MEM;
 	ADC10CTL0&=~ENC;                     //disable adc conv
 	return val;
+}
+
+
+
+//#pragma vector = ADC10_VECTOR                           // ADC conversion complete interrupt
+//__interrupt void ADC10_ISR(void)                        //
+__attribute__((interrupt(ADC10_VECTOR)))
+void ADC10_ISR(void)
+{                                                       //
+    __bic_SR_register_on_exit(LPM0_bits);               // Wakeup main code
 }
