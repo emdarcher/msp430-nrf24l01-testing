@@ -80,4 +80,7 @@ $(OUTDIR):
 clean:
 	-$(RM) $(OUTDIR)/*
 
+debug:
+	mspdebug rf2500
+
 .PHONY: all clean
