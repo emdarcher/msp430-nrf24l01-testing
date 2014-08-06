@@ -1,5 +1,5 @@
 
-//send ADC4 value over radio to a reciever
+//send value over radio to a reciever
 
 #include <msp430.h>
 #include <string.h>
