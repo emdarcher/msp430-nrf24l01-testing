@@ -17,6 +17,9 @@ void Temp_ADC_init(void);
 volatile uint16_t adc_val;
 #define A4 BIT4
 
+//clabration data aquisition code from this link:
+// http://forum.43oh.com/topic/2027-how-to-use-temperature-calibration-data/
+// helps quite a bit.
 
 unsigned verify_info_chk(const unsigned * const begin, const unsigned * const end)
 {
@@ -155,7 +158,7 @@ const TCAL * const cal = (TCAL *)(verify_info_chk(info_seg_a, info_seg_a_end) \
             
             //F
             //buf[1]= ((48724L * adc_val) -  30634388L) >> 16;
-            
+            buf[0]=((cf_scale * adc_val) + cf_offset) >> 16; //calibrated
             
             //celsius
             //buf[1]=((27069L * adc_val) -  18169625L) >> 16; 
