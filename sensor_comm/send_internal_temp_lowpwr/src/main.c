@@ -203,10 +203,12 @@ uint16_t ADC_read(void){
     
     //LPM0; //will exit when ADC done
     __bis_SR_register(LPM0_bits + GIE);             // Sleep until conversion complete
-    
+    //change to different sleep for lower power?
 	//a1_val=ADC10MEM;
     val=ADC10MEM;
 	ADC10CTL0&=~ENC;                     //disable adc conv
+    //add turning off adc for power saving?
+    
 	return val;
 }
 
