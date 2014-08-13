@@ -13,7 +13,7 @@ uint16_t ADC_read(void);
 void ADC_init(void);
 void Temp_ADC_init(void);
 
-void halt_timerA(void); //use when not using timer
+void halt_timerA(uint8_t halt_or_not); //use when not using timer
 
 void freq_timerA_init(void);
 volatile uint32_t input_frequency;
@@ -31,7 +31,7 @@ uint32_t read_avg_period(uint8_t avg_cnt);
 #define SMCLK_SPEED 1000000 //put the speed that SMCLK will be here
 
 uint8_t period_to_RH(uint32_t in_per);
-uint8_t freq_to_RH(uint16_t in_freq);
+uint8_t freq_to_RH(uint32_t in_freq);
 
 volatile uint16_t adc_val;
 #define A4 BIT4
@@ -210,7 +210,7 @@ void halt_timerA( uint8_t halt_or_not ){
         TACTL &= ~(MC0|MC1);
     } else {
         //undo halt and set to a default mode
-        TACTL &= ~(MC0|MC1)
+        TACTL &= ~(MC0|MC1);
         TACTL |= TIMERA_DFLT_MODE_BITS;//set in define
     }
     
