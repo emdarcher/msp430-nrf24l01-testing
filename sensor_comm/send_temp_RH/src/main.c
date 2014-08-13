@@ -36,7 +36,7 @@ uint8_t freq_to_RH(uint16_t in_freq);
 volatile uint16_t adc_val;
 #define A4 BIT4
 
-
+const 
 
 //clabration data aquisition code from this link:
 // http://forum.43oh.com/topic/2027-how-to-use-temperature-calibration-data/
@@ -114,6 +114,7 @@ int main()
     //init the ADC
     //ADC_init();
     Temp_ADC_init();
+    freq_timerA_init();//init freq timer stuff
 
 //stuff for cal
 const unsigned * const info_seg_a = (unsigned *)0x10C0;     // Address of info segement A
@@ -187,6 +188,10 @@ const TCAL * const cal = (TCAL *)(verify_info_chk(info_seg_a, info_seg_a_end) \
             //buf[1]=((27069L * adc_val) -  18169625L) >> 16; 
                 //calibrated
                 buf[1]= ((cc_scale * adc_val) + cc_offset) >> 16;
+            
+            uint32_t tempfreq = read_frequency();
+            buf[2]= (uint8_t)tempfreq; //get low byte
+            buf[3]= (uint8_t)(tempfreq>>8);//get high byte
             
             w_tx_payload(32, buf);
             msprf24_activate_tx();
@@ -270,16 +275,21 @@ uint8_t period_to_RH(uint32_t in_per){
         F = 1/(thigh+tlow) = 1/(C@%RH*(R4+2*R22)*ln2)
         Output duty cycle = thigh*F = R22/(R4+2*R22)
     
+    let's do our best to implement fixed/integer math and not floating point!
+    Now is the time to brandish your calculator threateningly!
+    
     period= (thigh+tlow)
     * period = (C@%RH*(R4+2*R22)*ln(2))
     * R22=499k ohm resistor 0.5% tolerance
     * R4= 49.9k ohm resistor 1% tolerance
     * period = (C@%RH*(49900+2*499000)*ln(2))
-    *  
+    *  ln(2) = 0.6931471806
+    * 
     *
     */
     
-    
+    //I think I am just going to use a lookup table instead
+    //sorry
     
 }
 
