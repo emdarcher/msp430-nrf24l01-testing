@@ -32,7 +32,7 @@ void setup() {
 }
 
 void loop() {
-  char inbuf[33];
+  unsigned char inbuf[33];
   
   //dump_radio_status_to_serialport(radio.radioState());  // Should show Receive Mode
 
@@ -40,13 +40,19 @@ void loop() {
     ;
   if (radio.read(inbuf)) {
     Serial.print("Received temps: ");
-    //uint16_t value_in;
-    //value_in = (uint16_t)((inbuf[0]<<8)|(inbuf[1]));
-    
+    uint16_t value_in,value_in_1;
+    value_in = (uint16_t)((uint16_t)(inbuf[3]<<8)|(uint16_t)(inbuf[2]));
+    value_in_1 = (uint16_t)((inbuf[5]<<8)|(inbuf[4]));
     Serial.print("Celsius: ");
-    Serial.print(inbuf[1],DEC); 
+    Serial.print((int8_t)inbuf[1],DEC); 
     Serial.print("\t\tFahrenheit: ");
-    Serial.print(inbuf[0],DEC);
+    Serial.print((int8_t)inbuf[0],DEC);
+    Serial.print("\tFreq: ");
+    Serial.print(value_in, DEC);
+    Serial.print("Hz");
+    Serial.print("  \tAvgFreq: ");
+    Serial.print(value_in_1, DEC);
+    Serial.print("Hz");
     Serial.print("\r\n");
     
     //Serial.println(inbuf);
