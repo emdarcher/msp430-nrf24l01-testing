@@ -161,6 +161,7 @@ const TCAL * const cal = (TCAL *)(verify_info_chk(info_seg_a, info_seg_a_end) \
     buf[0] = '0';
     //buf[1]='\0';
     buf[2] = '\0';
+    buf[4] = '\0';
     while(1) {
         if (rf_irq & RF24_IRQ_FLAGGED) {  // Just acknowledging previous packet here
             msprf24_get_irq_reason();
@@ -189,10 +190,15 @@ const TCAL * const cal = (TCAL *)(verify_info_chk(info_seg_a, info_seg_a_end) \
                 //calibrated
                 buf[1]= ((cc_scale * adc_val) + cc_offset) >> 16;
             
-            uint32_t tempfreq = read_frequency();
+            //uint16_t tempfreq;
+            uint32_t tempfreq;
+            //tempfreq = (uint16_t)read_frequency();
+            tempfreq = read_frequency();
+            //tempfreq = (uint16_t)read_avg_freq(6);
+            //tempfreq = (uint16_t)read_avg_freq(6);
             buf[2]= (uint8_t)tempfreq; //get low byte
             buf[3]= (uint8_t)(tempfreq>>8);//get high byte
-            tempfreq = read_avg_freq(10);
+            tempfreq = read_avg_freq(6);
             buf[4]= (uint8_t)tempfreq; //get low byte
             buf[5]= (uint8_t)(tempfreq>>8);//get high byte
             
@@ -238,6 +244,7 @@ void freq_timerA_init(void){
     //CAP, set for capture
     //CCIE, capture/compare interrupt enable
     TACCTL0 |= ( CM0 | CAP | CCIE );
+    TACCTL0 &= ~CCIE;
     
     
 }
@@ -361,7 +368,7 @@ uint32_t read_frequency(void){
     
     //un-halt the timer if halted
     halt_timerA(0);
-    
+    TACCTL0 |= CCIE;
     
     //go into LPM0 
     __bis_SR_register(LPM0_bits + GIE);//wait for capture 1
@@ -369,32 +376,36 @@ uint32_t read_frequency(void){
     //then capture 2
     __bis_SR_register(LPM0_bits + GIE);
     
-    //uint32_t temp_period_store = input_period;
+    uint32_t temp_period_store = input_period;
     halt_timerA(1); //halt the timer
+    TACCTL0 &= ~CCIE;
     
-    return (uint32_t)(SMCLK_SPEED/input_period); //return frequency in Hz
-
+    //return (uint32_t)(SMCLK_SPEED/input_period); //return frequency in Hz
+    return (uint32_t)(SMCLK_SPEED/temp_period_store); //return frequency in Hz
 }
 
 uint32_t read_avg_freq(uint8_t avg_cnt){
     //avg_cnt is the number of samples to take in the avg
     
-    uint32_t temp_period_store;
+    uint32_t temp_period_store=0;
     
     //un-halt the timer if halted
+    TACCTL0 |= CCIE;
     halt_timerA(0);
     
     //get capture 0 to initiate
     __bis_SR_register(LPM0_bits + GIE);
-    
-    while(avg_cnt--){
+    uint8_t i = avg_cnt;
+    while(i--){
         //loop amount of avg_cnt to take multiple vals for avg
         
         __bis_SR_register(LPM0_bits + GIE);//wait for a capture
         
         temp_period_store += input_period; //add the value
     }
+    //TACCTL0 &= ~CCIE;
     halt_timerA(1);
+    TACCTL0 &= ~CCIE;
     temp_period_store /= avg_cnt; //devide sum by avg_cnt to get avg
     
     return (uint32_t)(SMCLK_SPEED/temp_period_store);//return freq in Hz
