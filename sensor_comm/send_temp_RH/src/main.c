@@ -192,12 +192,15 @@ const TCAL * const cal = (TCAL *)(verify_info_chk(info_seg_a, info_seg_a_end) \
             uint32_t tempfreq = read_frequency();
             buf[2]= (uint8_t)tempfreq; //get low byte
             buf[3]= (uint8_t)(tempfreq>>8);//get high byte
+            tempfreq = read_avg_freq(10);
+            buf[4]= (uint8_t)tempfreq; //get low byte
+            buf[5]= (uint8_t)(tempfreq>>8);//get high byte
             
             w_tx_payload(32, buf);
             msprf24_activate_tx();
         }
 
-        wdt_sleep(2);  //
+        wdt_sleep(10);  //
     }
     return 0;
 }
@@ -347,7 +350,7 @@ uint32_t read_avg_period(uint8_t avg_cnt){
         
         temp_period_store += input_period; //add the value
     }
-    
+    halt_timerA(1);
     temp_period_store /= avg_cnt; //devide sum by avg_cnt to get avg
     
     return temp_period_store;
@@ -391,7 +394,7 @@ uint32_t read_avg_freq(uint8_t avg_cnt){
         
         temp_period_store += input_period; //add the value
     }
-    
+    halt_timerA(1);
     temp_period_store /= avg_cnt; //devide sum by avg_cnt to get avg
     
     return (uint32_t)(SMCLK_SPEED/temp_period_store);//return freq in Hz
