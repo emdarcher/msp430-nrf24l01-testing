@@ -2,7 +2,7 @@
 //send value over radio to a reciever
 
 #include <msp430.h>
-#include <string.h>
+//#include <string.h>
 #include "msprf24.h"
 #include "nrf_userconfig.h"
 
@@ -78,6 +78,9 @@ void wdt_sleep(unsigned int cycles)
     WDTCTL = WDTPW | WDTTMSEL | WDTCNTCL | WDTSSEL | WDTIS1;  // WDT interval = 512 VLOCLK cycles, about 47ms
     IFG1 &= ~WDTIFG;
     IE1 |= WDTIE;
+    
+    
+    
     LPM3;
     WDTCTL = WDTPW | WDTHOLD;
 }
@@ -88,9 +91,11 @@ void WDT_ISR(void)
 {
     if (wdtsleep) {
         wdtsleep--;
+        msprf24_powerdown();//trying this
     } else {
         IFG1 &= ~WDTIFG;
         IE1 &= ~WDTIE;
+        msprf24_standby();//trying this
         __bic_SR_register_on_exit(LPM3_bits);
     }
 }
@@ -153,8 +158,9 @@ const TCAL * const cal = (TCAL *)(verify_info_chk(info_seg_a, info_seg_a_end) \
     // Transmit to 0xDEADBEEF00
     msprf24_standby();
     user = msprf24_current_state();
-    //addr[0] = 'r'; addr[1] = 'a'; addr[2] = 'd'; addr[3] = '0'; addr[4] = '1';
-    memcpy(addr, "\xDE\xAD\xBE\xEF\x00", 5);
+    addr[0] = 0xDE; addr[1] = 0xAD; addr[2] = 0xBE; addr[3] = 0xEF; addr[4] = 0x00;
+    //addr[5] = { 0xDE,0xAD,0xBE,0xEF,0x00};
+    //memcpy(addr, "\xDE\xAD\xBE\xEF\x00", 5);
     w_tx_addr(addr);
     w_rx_addr(0, addr);  // Pipe 0 receives auto-ack's, autoacks are sent back to the TX addr so the PTX node
     // needs to listen to the TX addr on pipe#0 to receive them.
@@ -324,7 +330,7 @@ uint32_t read_period(void){
     
     //un-halt the timer if halted
     halt_timerA(0);
-    
+    TACCTL0 |= CCIE;
     
     //go into LPM0 
     __bis_SR_register(LPM0_bits + GIE);//wait for capture 1
@@ -332,11 +338,11 @@ uint32_t read_period(void){
     //then capture 2
     __bis_SR_register(LPM0_bits + GIE);
     
-    //uint32_t temp_period_store = input_period;
+    uint32_t temp_period_store = input_period;
     halt_timerA(1); //halt the timer
-    
-    return input_period;
-    
+    TACCTL0 &= ~CCIE;
+    //return input_period;
+    return temp_period_store;
 }
 uint32_t read_avg_period(uint8_t avg_cnt){
     
@@ -345,19 +351,23 @@ uint32_t read_avg_period(uint8_t avg_cnt){
     uint32_t temp_period_store;
     
     //un-halt the timer if halted
+    //and enable CCR0 interrupt
+    TACCTL0 |= CCIE;
     halt_timerA(0);
-    
     //get capture 0 to initiate
     __bis_SR_register(LPM0_bits + GIE);
     
-    while(avg_cnt--){
+    uint8_t i = avg_cnt;
+    while(i--){
         //loop amount of avg_cnt to take multiple vals for avg
         
         __bis_SR_register(LPM0_bits + GIE);//wait for a capture
         
         temp_period_store += input_period; //add the value
     }
+    //halt_timerA(1);
     halt_timerA(1);
+    TACCTL0 &= ~CCIE;
     temp_period_store /= avg_cnt; //devide sum by avg_cnt to get avg
     
     return temp_period_store;
