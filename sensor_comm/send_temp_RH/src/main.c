@@ -187,6 +187,7 @@ const TCAL * const cal = (TCAL *)(verify_info_chk(info_seg_a, info_seg_a_end) \
             //buf[1] = (uint8_t)(adc_val);//low byte
             //buf[0]=(uint8_t)(adc_val>>2);//8 bits?
             
+            
             //F
             //buf[1]= ((48724L * adc_val) -  30634388L) >> 16;
             buf[0]=((cf_scale * adc_val) + cf_offset) >> 16; //calibrated
