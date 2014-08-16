@@ -36,12 +36,12 @@ uint8_t freq_to_RH(uint32_t in_freq);
 volatile uint16_t adc_val;
 #define A4 BIT4
 
-const 
+const uint16_t freq_to_RH_lookup_table[];
 
 //clabration data aquisition code from this link:
 // http://forum.43oh.com/topic/2027-how-to-use-temperature-calibration-data/
 // helps quite a bit.
-
+const
 unsigned verify_info_chk(const unsigned * const begin, const unsigned * const end)
 {
     const unsigned *p = begin + 1;                      // Begin at word after checksum
