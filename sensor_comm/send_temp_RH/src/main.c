@@ -36,11 +36,47 @@ uint8_t freq_to_RH(uint32_t in_freq);
 volatile uint16_t adc_val;
 #define A4 BIT4
 
-const uint16_t freq_to_RH_lookup_table[]={
-    
-    
-    
+//lookup table using Log fit utility in Gnumeric on a plot graph
+//of the datasheet supplied lookup table values.
+//equation found was:
+// F = 15941.9 - 1815.8 * ln((RH%)+ 116.722)
+//not the equation in the datasheet, but gets very close values.
+//for some reason I couldn't figure out how to use the equation in the datasheet
+//and get correct values
+const uint16_t freq_to_RH_lookup_table[101]={//0-99 1 unit steps and 100
+    7299,7284,7268,7253,7238,7223,7208,7193,7179,7164,  //0-9
+    7150,7136,7121,7107,7093,7080,7066,7052,7039,7025,  //10-19
+    7012,6999,6986,6973,6960,6947,6934,6921,6909,6896,  //20-29
+    6884,6871,6859,6847,6835,6823,6811,6799,6787,6776,  //30-39
+    6764,6752,6741,6730,6718,6707,6696,6685,6674,6663,  //40-49
+    6652,6641,6630,6619,6609,6598,6588,6577,6567,6556,  //50-59
+    6546,6536,6526,6515,6505,6495,6485,6475,6466,6456,  //60-69
+    6446,6436,6427,6417,6408,6398,6389,6379,6370,6361,  //70-79
+    6351,6342,6333,6324,6315,6306,6297,6288,6279,6270,  //80-89
+    6261,6252,6244,6235,6226,6218,6209,6201,6192,6184,  //90-99
+    6175,                                               //100
 };
+/*
+const uint16_t freq_to_RH_LUT_from_datasheet[] = { //10-95 5unit steps
+7155,//10%
+7080,//15
+7010,//20
+6945,//25
+6880,//30
+6820,//35
+6760,//40
+6705,//45,
+6650,//50
+6600,//55
+6550.//60
+6500,//65
+6450,//70
+6400,//75
+6355,//80
+6305,//85
+6260,//90
+6210,//95%
+};*/
 
 //clabration data aquisition code from this link:
 // http://forum.43oh.com/topic/2027-how-to-use-temperature-calibration-data/
@@ -263,19 +299,7 @@ void freq_timerA_init(void){
 uint8_t freq_to_RH(uint32_t in_freq){
     //takes a frequency in Hz and returns corresponding relative humidity %
     
-    /*
-     * from datasheet for HS1101LF, equations to get RH%
-     * from the freq output of a 555 timer circuit
-     * with the HS1101LF as a variable capacitor in astable circuit
-     * 
-     *  thigh = C@%RH*(R22+R4)*ln2
-        tlow= C@%RH*R22*ln2
-        F = 1/(thigh+tlow) = 1/(C@%RH*(R4+2*R22)*ln2)
-        Output duty cycle = thigh*F = R22/(R4+2*R22)
-    
-    period
-    */
-    
+    //using lookup table
     
     
     
