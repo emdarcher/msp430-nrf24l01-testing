@@ -301,8 +301,18 @@ uint8_t freq_to_RH(uint32_t in_freq){
     
     //using lookup table
     
-    
-    
+    if(in_freq > freq_to_RH_lookup_table[0]){
+        return 0;
+    } else if(in_freq < freq_to_RH_lookup_table[100]){
+        return 100;
+    } else {
+        uint8_t i = 100;
+        while(--i){
+            if((in_freq <= freq_to_RH_lookup_table[i])){
+                return i;
+            } 
+        }
+    }
 }
 
 
