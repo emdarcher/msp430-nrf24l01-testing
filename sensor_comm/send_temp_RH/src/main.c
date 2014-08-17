@@ -36,7 +36,11 @@ uint8_t freq_to_RH(uint32_t in_freq);
 volatile uint16_t adc_val;
 #define A4 BIT4
 
-const uint16_t freq_to_RH_lookup_table[];
+const uint16_t freq_to_RH_lookup_table[]={
+    
+    
+    
+};
 
 //clabration data aquisition code from this link:
 // http://forum.43oh.com/topic/2027-how-to-use-temperature-calibration-data/
