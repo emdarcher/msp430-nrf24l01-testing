@@ -25,6 +25,8 @@ volatile uint16_t previous_ccr;
 uint32_t read_frequency(void);
 uint32_t read_avg_freq(uint8_t avg_cnt);
 
+#define AVG_POOL_SIZE 6 //amount of samples to use to find average
+
 uint32_t read_period(void);
 uint32_t read_avg_period(uint8_t avg_cnt);
 
@@ -245,9 +247,15 @@ const TCAL * const cal = (TCAL *)(verify_info_chk(info_seg_a, info_seg_a_end) \
             //tempfreq = (uint16_t)read_avg_freq(6);
             buf[2]= (uint8_t)tempfreq; //get low byte
             buf[3]= (uint8_t)(tempfreq>>8);//get high byte
-            tempfreq = read_avg_freq(6);
+            
+            buf[6]=freq_to_RH(tempfreq);//the RH%
+            
+            tempfreq = read_avg_freq(AVG_POOL_SIZE);
             buf[4]= (uint8_t)tempfreq; //get low byte
             buf[5]= (uint8_t)(tempfreq>>8);//get high byte
+            
+            buf[7]=freq_to_RH(tempfreq);//the RH% based on avg freq
+            
             
             w_tx_payload(32, buf);
             msprf24_activate_tx();
@@ -310,7 +318,7 @@ uint8_t freq_to_RH(uint32_t in_freq){
         while(--i){
             if((in_freq <= freq_to_RH_lookup_table[i])){
                 return i;
-            } 
+            }
         }
     }
 }
@@ -460,7 +468,6 @@ uint32_t read_avg_freq(uint8_t avg_cnt){
     return (uint32_t)(SMCLK_SPEED/temp_period_store);//return freq in Hz
 }
 
-
 uint16_t ADC_read(void){
 	uint16_t val=0;
     ADC10CTL0 |= ENC+ ADC10SC;     // Enable conversions.
@@ -477,8 +484,6 @@ uint16_t ADC_read(void){
     
 	return val;
 }
-
-
 
 //#pragma vector = ADC10_VECTOR                           // ADC conversion complete interrupt
 //__interrupt void ADC10_ISR(void)                        //

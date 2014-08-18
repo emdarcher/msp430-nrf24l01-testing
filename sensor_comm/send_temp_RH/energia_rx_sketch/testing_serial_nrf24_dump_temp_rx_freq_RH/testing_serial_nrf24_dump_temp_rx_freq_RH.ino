@@ -43,9 +43,9 @@ void loop() {
     uint16_t value_in,value_in_1;
     value_in = (uint16_t)((uint16_t)(inbuf[3]<<8)|(uint16_t)(inbuf[2]));
     value_in_1 = (uint16_t)((inbuf[5]<<8)|(inbuf[4]));
-    Serial.print("Celsius: ");
+    Serial.print("C: ");
     Serial.print((int8_t)inbuf[1],DEC); 
-    Serial.print("\t\tFahrenheit: ");
+    Serial.print("\t\tF: ");
     Serial.print((int8_t)inbuf[0],DEC);
     Serial.print("\tFreq: ");
     Serial.print(value_in, DEC);
@@ -53,6 +53,10 @@ void loop() {
     Serial.print("  \tAvgFreq: ");
     Serial.print(value_in_1, DEC);
     Serial.print("Hz");
+    Serial.print(" \tRH%: ");
+    Serial.print(inbuf[6], DEC);
+    Serial.print(" \tAvgRH&: ");
+    Serial.print(inbuf[7], DEC);
     Serial.print("\r\n");
     
     //Serial.println(inbuf);
